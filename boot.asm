@@ -75,6 +75,14 @@ gdr_descriptor:
 
 [BITS 32]; all code after this is seem as 32 bit code 
 load32:
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov ebp, 0x00200000
+    mov esp, ebp
     jmp $
 
 
