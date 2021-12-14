@@ -35,6 +35,7 @@ code:
 .load_protected:
     cli ; disable the interrupt
     lgdt[gdr_descriptor]
+    ;note how the instructions changes after this point 
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
@@ -74,14 +75,14 @@ gdr_descriptor:
     dd gdt_start
 
 [BITS 32]; all code after this is seem as 32 bit code 
-load32:
+load32: ;set up the 32 bit registers
     mov ax, DATA_SEG
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    mov ebp, 0x00200000
+    mov ebp, 0x00200000 ;location of the kernel to load
     mov esp, ebp
     jmp $
 
