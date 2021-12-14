@@ -36,6 +36,13 @@ code:
     cli ; disable the interrupt
     lgdt[gdr_descriptor]
     ;note how the instructions changes after this point 
+    
+    ;enable a20 line
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
+    ;enable the protected mode bit
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
