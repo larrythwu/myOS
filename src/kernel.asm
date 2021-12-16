@@ -1,4 +1,5 @@
 [BITS 32]; all code after this is seem as 32 bit code 
+
 global _start ;export the sympol
 
 CODE_SEG equ 0x08
@@ -22,3 +23,5 @@ _start: ;set up the 32 bit registers
     out 0x92, al
     
     jmp $
+
+times 512-($ - $$) db 0
