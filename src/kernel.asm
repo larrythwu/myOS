@@ -1,6 +1,9 @@
 [BITS 32]; all code after this is seem as 32 bit code 
 
 global _start ;export the sympol
+global problem
+
+extern kernel_main
 
 CODE_SEG equ 0x08
 DATA_SEG equ 0x10
@@ -22,6 +25,14 @@ _start: ;set up the 32 bit registers
     or al, 2
     out 0x92, al
     
+    call kernel_main
+
     jmp $
+
+; a division by zero function, to test out our interrupts in protected mode
+problem:
+    mov eax, 0
+    div eax   
+    
 
 times 512-($ - $$) db 0
