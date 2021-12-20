@@ -87,5 +87,6 @@ void kernel_main()
     
     //test out our interrupt
     //problem();
-    outb(0x60, 0xff);
+    //outb(0x60, 0xff);
+    
 }
