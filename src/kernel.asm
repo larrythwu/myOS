@@ -31,8 +31,9 @@ _start: ;set up the 32 bit registers
 
 ; a division by zero function, to test out our interrupts in protected mode
 problem:
+    mov edx, 0
     mov eax, 0
-    div eax   
+    div eax    
     
 
 times 512-($ - $$) db 0

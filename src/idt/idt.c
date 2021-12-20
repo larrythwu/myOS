@@ -14,7 +14,7 @@ extern void idt_load(struct idtr_desc* ptr);
 //traditional int 0 is for divide by 0 exceptions
 void idt_zero()
 {
-    print("Divide by 0\n");
+    print("Divide by 0 exception\n");
 }
 
 //set an entry of the interrupt table
