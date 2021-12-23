@@ -194,7 +194,32 @@ void* heap_malloc(struct heap* heap, size_t size)
     return heap_malloc_blocks(heap, total_blocks);
 }
 
+int heap_address_to_block(struct heap* heap, void* address)
+{
+    return ((int)(address) - (int)heap->saddr)/MYOS_HEAP_BLOCK_SIZE;
+}
+
+void heap_mark_blocks_free(struct heap* heap, int starting_block)
+{
+    struct heap_table* table = heap->table;
+    
+    for(int i = starting_block; i < (int)table->total; i++)
+    {
+        HEAP_BLOCK_TABLE_ENTRY entry = table->entries[i];
+        table->entries[i] = HEAP_BLOCK_TABLE_ENTRY_FREE;
+        if(!(entry & HEAP_BLOCK_HAS_NEXT))
+        {
+            break;
+        }
+    }
+}
+
+//mark the all the entries starting at ptr to FREE
+//heap: the pointer to the heap struct which stores the table
+//ptr: starting address to be freed
 void heap_free(struct heap* heap, void* ptr)
 {
-    return;
+    //we don't need the number of block since we have the "NEXT" flag
+    //we just free all that is "next" of the starting block
+    heap_mark_blocks_free(heap, heap_address_to_block(heap, ptr));
 }

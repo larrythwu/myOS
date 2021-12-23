@@ -25,11 +25,12 @@ void kernel_main()
     
     void* ptr = kmalloc(50);
     void* ptr2 = kmalloc(5000);
-
+    kfree(ptr);
+    void* ptr3 = kmalloc(4000);
     //test out our interrupt
     //problem();
     //outb(0x60, 0xff);
-    if(ptr || ptr2)
+    if(ptr || ptr2 || ptr3)
     {
 
     }
