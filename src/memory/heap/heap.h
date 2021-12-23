@@ -10,8 +10,8 @@
 #define HEAP_TABLE_ENTRY_FREE 0x00
 
 //indicate if the block is the first and whetehr it have another adjacent block
-#define HEAP_BLOCK_HAVE_NEXT 0x80
-#define HEAP_BLOCK_IS_FIRST 0x40
+#define HEAP_BLOCK_HAS_NEXT 0b10000000
+#define HEAP_BLOCK_IS_FIRST 0b01000000
 
 //a char is one byte which is the size of our table entry
 typedef unsigned char HEAP_BLOCK_TABLE_ENTRY;
@@ -36,5 +36,5 @@ int heap_create(struct heap* heap, void* ptr, void* end, struct heap_table* tabl
 
 void* heap_malloc(struct heap* heap, size_t size);
 
-void heap_free(void* ptr);
+void heap_free(struct heap* heap, void* ptr);
 #endif

@@ -3,7 +3,7 @@
 #include "status.h"
 #include "memory/memory.h"
 #include <stdbool.h>
-
+#include "std/stdio.h"
 
 //check if our table allocation have enough entries to cover all the mem addr in the heap
 static int heap_validate_heap_table(void* ptr, void*end, struct heap_table* table)
@@ -23,7 +23,7 @@ out:
 //check if our heap allocation is aligned properly
 static int heap_validate_aligment(void* ptr)
 {
-    return ((uint32_t)ptr % MYOS_HEAP_BLOCK_SIZE)==0;
+    return ((unsigned int)ptr % MYOS_HEAP_BLOCK_SIZE)==0;
 }
 
 int heap_create(struct heap* heap, void* ptr, void* end, struct heap_table* table)
@@ -46,7 +46,7 @@ int heap_create(struct heap* heap, void* ptr, void* end, struct heap_table* tabl
 
     //the total number of bytes our heap table needs
     size_t table_size = sizeof(HEAP_BLOCK_TABLE_ENTRY) * table->total;
-    memset(table->entries, 0, table_size);
+    memset(table->entries, HEAP_TABLE_ENTRY_FREE, table_size);
 
 out:
     return res;
@@ -55,6 +55,7 @@ out:
 static uint32_t heap_aligne_value_to_upper(uint32_t val)
 {
     int rem = val % MYOS_HEAP_BLOCK_SIZE;
+
     //if not aligned we round up
     if(rem != 0)
     {
@@ -72,9 +73,12 @@ static int heap_get_entry_type(HEAP_BLOCK_TABLE_ENTRY entry)
 }
 
 //we pasrse through the entry table and find if there is 'total_blocks' of consevutive entries that are free
-int heap_get_start_block(struct heap* heap, int total_blocks)
+int heap_get_start_block(struct heap* heap, uint32_t total_blocks)
 {
     struct heap_table* table = heap->table;
+    //start and end block entry number
+    //bs: starting block number
+    //bc: number of free block collected, block count
     int bc = 0;
     int bs = -1;
 
@@ -82,41 +86,115 @@ int heap_get_start_block(struct heap* heap, int total_blocks)
     for(size_t i = 0; i < table->total; i++)
     {
         //here we check the type of every entry to see if the block is taken or not
+        if(heap_get_entry_type(table->entries[i] != HEAP_BLOCK_TABLE_ENTRY_FREE))
+        {
+            bc = 0;
+            bs = -1;
+            continue;
+        }    
+        //now we know the current block is free
+        //if this is the first block
+        if(bs == -1)
+        {
+            bs = i;
+        }
+        bc++;
+        //we found enough blocks
+        if(bc == total_blocks)
+        {
+            break;
+        }
+    }
+
+    //if no start point is found we return no memory error
+    if(bs == -1)
+    {
+        return -ENOMEM;
+    }
+
+    return bs;
+
+}
+
+//translate the block number to the actual  
+void* heap_block_to_adress(struct heap* heap, int block)
+{
+    return heap->saddr + (block * MYOS_HEAP_BLOCK_SIZE);
+
+}
+
+//mark the range of blocks as taken in the entry table
+void heap_mark_blocks_taken(struct heap* heap, int start_block, int total_blocks)
+{
+    print("starting block = ");
+    printn(start_block);
+
+    print("total_blocks = ");
+    printn(total_blocks);
+
+    int end_block = (start_block + total_blocks - 1);
+    //set the mask for our first block
+    HEAP_BLOCK_TABLE_ENTRY entry = HEAP_TABLE_ENTRY_TAKEN | HEAP_BLOCK_IS_FIRST;
+    if(total_blocks > 1)
+    {
+        entry |= HEAP_BLOCK_HAS_NEXT;
+
+    }
+
+    for(int i = start_block; i <= end_block; i++)
+    {
+        heap->table->entries[i] = entry;
+        entry = HEAP_TABLE_ENTRY_TAKEN;
+        
+        //if we are not at the last block, we need to indicate that it still has next 
+        if( i != end_block-1)
+        {
+            entry |= HEAP_BLOCK_HAS_NEXT;
+        }
     }
 }
 
-void* heap_malloc_blocks(struct heap* heap, uint32_t total_blocks)
+void* heap_malloc_blocks(struct heap* heap, int total_blocks)
 {
     void* address = 0;
     
     //see if we can find a consevutive of array of blocks that is 
     //of the size we need
     int start_block = heap_get_start_block(heap, total_blocks);
+
+
     
     if(start_block < 0)
     {
+        //if we get an error, we will return address 0x0 (NULL)
         goto out;
     }
 
     //get the absolute memaddress 
     address = heap_block_to_adress(heap, start_block);
+    
     //mark the blocks as taken
     heap_mark_blocks_taken(heap, start_block, total_blocks);
 
-
+out:
     return address;
 
 }
 
-//allocate an aligned block of memory of size 
+//allocate an aligned block of memory of the sepcified size
+//if no memory is available then return a null address 
+//heap: a struct that stores the starting addr of the heap memory
+//      and the address of the heap entry table for keeping records
+//size: the size of the memory block that we want to allocate 
 void* heap_malloc(struct heap* heap, size_t size)
 {
+    //get how many aligned block we need to cover the requested size
     size_t aligned_size = heap_aligne_value_to_upper(size);
-    uint32_t total_blocks = aligned_size / MYOS_HEAP_BLOCK_SIZE;
+    int total_blocks = aligned_size / MYOS_HEAP_BLOCK_SIZE;
     return heap_malloc_blocks(heap, total_blocks);
 }
 
-void heap_free(void* ptr)
+void heap_free(struct heap* heap, void* ptr)
 {
     return;
 }
