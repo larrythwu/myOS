@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #define PAGING_CACHE_DISABLED   0b00010000 //the fifth bit is cache disable bit
 #define PAGING_WRITE_THROUGH    0b00001000
@@ -26,5 +27,10 @@ struct paging_4gb_chunk* paging_new_4gb(uint8_t flags);
 //we donnot enable paging until we created a page table and switced to it
 void enable_paging();
 void paging_load_directory(uint32_t* directory);
+
+int paging_set(uint32_t* directory, void* virtual_addr, uint32_t val);
+int paging_get_indexes(void* virtual_address, uint32_t* directory_index_out, uint32_t* table_index_out);
+bool paging_is_aligned(void* address);
+
 
 #endif
