@@ -126,11 +126,11 @@ void* heap_block_to_adress(struct heap* heap, int block)
 //mark the range of blocks as taken in the entry table
 void heap_mark_blocks_taken(struct heap* heap, int start_block, int total_blocks)
 {
-    print("starting block = ");
-    printn(start_block);
+    //print("starting block = ");
+    //printn(start_block);
 
-    print("total_blocks = ");
-    printn(total_blocks);
+    //print("total_blocks = ");
+    //printn(total_blocks);
 
     int end_block = (start_block + total_blocks - 1);
     //set the mask for our first block

@@ -44,7 +44,7 @@ _start: ;set up the 32 bit registers
     ; enable interrupts 
     ; now we enable this a little too early here, because tghe IDt is not set up yet
     ; we will fix this later
-    sti
+    ;sti
 
     call kernel_main
 
