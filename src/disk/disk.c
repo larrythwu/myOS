@@ -1,5 +1,10 @@
 #include "io/io.h"
 #include "disk.h"
+#include "memory/memory.h"
+#include "config.h"
+#include "status.h"
+
+struct disk disk;
 
 //lba: the logical block number of the sector on the hardrive that we want to read
 //total: how many sector to read
@@ -38,4 +43,23 @@ int disk_read_sector(int lba, int total, void* buf)
     }
 
     return 0;
+}
+
+//searching for all the disks and initialize/register them wiht the system
+void disk_search_and_init()
+{
+    //we only have one disk right now, so no need for a searching mechanism yet   
+    memset(&disk, 0, sizeof(disk));
+    disk.type = MYOS_DISK_TYPE_REAL;
+    disk.sector_size = MYOS_SECTOR_SIZE;
+}
+
+//reading the disk from the struct
+int disk_read_block(struct disk* idisk, unsigned int lba, int total, void* buf)
+{
+    if(idisk != &disk)
+    {
+        return -EIO;
+    }
+    return disk_read_sector(lba, total, buf);
 }

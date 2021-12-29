@@ -22,10 +22,12 @@ void kernel_main()
 
     //-------initailize our kernel space heap-------//
     kheap_init();
-        
+
+    //-------search and init the disks-------//
+    disk_search_and_init();
+
     //-------load our interrupt descriptor table-------//
     idt_init();
-    
     
 
     //-------enable paging-------//
@@ -36,9 +38,9 @@ void kernel_main()
     enable_paging();
 
     //-------testing reading from HD-------//
-    char buf[512];
-    disk_read_sector(0, 1, buf);
-    
+    // char buf[512];
+    // disk_read_sector(0, 1, buf);
+
 
     //-------enable te interrupts-------//
     enable_interrupts();

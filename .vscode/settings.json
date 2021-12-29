@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "heap.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "memory.h": "c"
     }
 }
