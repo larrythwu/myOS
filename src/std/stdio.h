@@ -7,5 +7,6 @@
 void print(const char* str);
 void terminal_initialize();
 void printn(int number);
+size_t len(const char* str);
 
 #endif

@@ -2,6 +2,7 @@
     "files.associations": {
         "heap.h": "c",
         "cmath": "c",
-        "memory.h": "c"
+        "memory.h": "c",
+        "stdio.h": "c"
     }
 }

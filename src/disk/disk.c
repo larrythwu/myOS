@@ -11,11 +11,17 @@ struct disk disk;
 //buf: pointer to the memory location to store the read data
 int disk_read_sector(int lba, int total, void* buf)
 {
+    //set 0xE0 for lba mode, the lower four bit contain the 24-27 bit of lba
     outb(0x1F6, (lba>>24) | 0xE0);
+    //send the number of sectors we want to write
     outb(0x1F2, total);
+    //send lower 8bit of the lba
     outb(0x1F3, (unsigned char)(lba & 0xff));
+    //send bit 8 - 15 of LBA
     outb(0x1F4, (unsigned char)(lba >> 8));
+    //send bit 16 - 23 of LBA
     outb(0x1F5, (unsigned char)(lba >> 16));
+    //1f7 is the command port, 0x20 is read
     outb(0x1F7, 0x20);
 
     //we frame ptr to be a short because short is two byte
@@ -41,7 +47,7 @@ int disk_read_sector(int lba, int total, void* buf)
         }
 
     }
-
+    
     return 0;
 }
 

@@ -7,6 +7,7 @@
 #include "std/stdio.h"
 #include "memory/paging/paging.h"
 #include "disk/disk.h"
+#include "filesystem/path_parser.h"
 
 //our asm divide by zero code
 extern void problem();
@@ -44,4 +45,12 @@ void kernel_main()
 
     //-------enable te interrupts-------//
     enable_interrupts();
+
+    //-------testing our path parser-------//
+    struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
+
+    if(root_path)
+    {
+        
+    }
 }

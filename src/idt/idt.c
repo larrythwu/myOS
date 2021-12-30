@@ -3,6 +3,8 @@
 #include "kernel.h"
 #include "memory/memory.h"
 #include "io/io.h"
+#include "std/stdio.h"
+
 struct idt_desc idt_descriptors[MYOS_TOTAL_INTERRUPTS];
 struct idtr_desc idt_descriptor;
 

@@ -5,6 +5,4 @@
 
 void kernel_main();
 
-//print a string to screen
-void print(const char* str);
 #endif

@@ -52,7 +52,7 @@ void terminal_initialize()
 }
 
 //return the size of a string
-size_t strlen(const char* str)
+size_t len(const char* str)
 {
     size_t len = 0;
     
@@ -95,8 +95,8 @@ char * toArray(int number)
 
 //print a string to screen
 void print(const char* str){
-    size_t len = strlen(str);
-    for(int i = 0; i< len; i++){
+    size_t length = len(str);
+    for(int i = 0; i< length; i++){
         terminal_writechar(str[i], 15);
     }
 }

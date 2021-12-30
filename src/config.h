@@ -22,4 +22,7 @@
 #define HEAP_BLOCK_TABLE_ENTRY_FREE 0
 
 #define MYOS_SECTOR_SIZE 512
+
+#define MYOS_MAX_PATH 108
+
 #endif
