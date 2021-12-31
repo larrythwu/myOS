@@ -8,6 +8,7 @@
 #include "memory/paging/paging.h"
 #include "disk/disk.h"
 #include "filesystem/path_parser.h"
+#include "disk/streamer.h"
 
 //our asm divide by zero code
 extern void problem();
@@ -46,11 +47,12 @@ void kernel_main()
     //-------enable te interrupts-------//
     enable_interrupts();
 
-    //-------testing our path parser-------//
-    struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
+    //-------testing our file streamer-------//
+    //get the streamer of the disk 0, the onyl disk we have really
+    struct disk_stream* stream = diskstreamer_new(0);
+    diskstream_seek(stream, 0x201);
+    unsigned char c= 0;
+    diskstreamer_read(stream, &c , 1);
 
-    if(root_path)
-    {
-        
-    }
+    while(1){}
 }
