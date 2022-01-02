@@ -1,4 +1,4 @@
-FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o ./build/filesystem/path_parser.o ./build/std/string.o ./build/std/stdio.o ./build/disk/streamer.o ./build/filesystem/file.o
+FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o ./build/filesystem/path_parser.o ./build/std/string.o ./build/std/stdio.o ./build/disk/streamer.o ./build/filesystem/file.o ./build/filesystem/fat/fat16.o
 
 INCLUDES = -I./src
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
@@ -48,7 +48,7 @@ all: ./bin/boot.bin ./bin/kernel.bin
 	i686-elf-gcc ${INCLUDES} -I./src/memory/kheap ${FLAGS} -std=gnu99 -c ./src/memory/heap/kheap.c -o ./build/memory/heap/kheap.o
 
 ./build/std/stdio.o: ./src/std/stdio.c
-	i686-elf-gcc ${INCLUDES} -I./src/std/stdio ${FLAGS} -std=gnu99 -c ./src/std/stdio.c -o ./build/std/stdio.o
+	i686-elf-gcc ${INCLUDES} -I./src/std/stdio ${FLAGS} -std=gnu99 -c ./src/std/stdio.c -o ./build/std/stdio.o 
 
 ./build/memory/paging/paging.o: ./src/memory/paging/paging.c
 	i686-elf-gcc ${INCLUDES} -I./src/memory/paging ${FLAGS} -std=gnu99 -c ./src/memory/paging/paging.c -o ./build/memory/paging/paging.o
@@ -70,6 +70,9 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./build/filesystem/file.o: ./src/filesystem/file.c
 	i686-elf-gcc ${INCLUDES} -I./src/filesystem ${FLAGS} -std=gnu99 -c ./src/filesystem/file.c -o ./build/filesystem/file.o
+
+./build/filesystem/fat/fat16.o: ./src/filesystem/fat/fat16.c
+	i686-elf-gcc ${INCLUDES} -I./src/filesystem/fat ${FLAGS} -std=gnu99 -c ./src/filesystem/fat/fat16.c -o ./build/filesystem/fat/fat16.o
 
 clean:
 	rm -rf ./bin/boot.bin

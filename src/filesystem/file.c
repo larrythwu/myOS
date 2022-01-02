@@ -4,6 +4,7 @@
 #include "status.h"
 #include "std/stdio.h"
 #include "memory/heap/kheap.h"
+#include "fat/fat16.h"
 
 struct filesystem* filesystems[MYOS_MAX_FILESYSTEMS];
 struct file_descriptor* file_descriptors[MYOS_MAX_FILE_DESCRIPTORS];
@@ -40,10 +41,12 @@ void fs_insert_filesystem(struct filesystem* filesystem)
     *fs = filesystem;
 }
 
-//load the static filesystems, the one that are preinstalled by the kernel with out external drivers
+//load the static filesystems, the one that are preinstalled by the kernel without external drivers
+//in this case just the fat16 that we have defined in fat/fat16.c
 static void fs_static_load()
 {
-    //fs_insert_filesystem(fat16_init());
+    //fat16_init will point the function pointers to the appropriate fat16 implementation
+    fs_insert_filesystem(fat16_init());
 }
 
 //allocate the memory space for the filesystems array and load the 

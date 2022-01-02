@@ -9,6 +9,8 @@
 #include "disk/disk.h"
 #include "filesystem/path_parser.h"
 #include "disk/streamer.h"
+#include "std/string.h"
+#include "filesystem/file.h"
 
 //our asm divide by zero code
 extern void problem();
@@ -25,6 +27,9 @@ void kernel_main()
     //-------initailize our kernel space heap-------//
     kheap_init();
 
+    //-------initialize the file system----------//
+    fs_init();
+
     //-------search and init the disks-------//
     disk_search_and_init();
 
@@ -39,20 +44,12 @@ void kernel_main()
     
     enable_paging();
 
-    //-------testing reading from HD-------//
-    // char buf[512];
-    // disk_read_sector(0, 1, buf);
-
-
     //-------enable te interrupts-------//
     enable_interrupts();
 
-    //-------testing our file streamer-------//
-    //get the streamer of the disk 0, the onyl disk we have really
-    struct disk_stream* stream = diskstreamer_new(0);
-    diskstream_seek(stream, 0x201);
-    unsigned char c= 0;
-    diskstreamer_read(stream, &c , 1);
+    char buf[20];
+    strcpy(buf, "hello");
+
 
     while(1){}
 }
