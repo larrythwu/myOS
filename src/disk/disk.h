@@ -1,6 +1,7 @@
 #ifndef DISK_H
 #define DISK_H
 
+#include "filesystem/file.h"
 
 //we want to create a structure that can allow us to generalize our disk IO code 
 //for all the disk type our system can have
@@ -13,6 +14,9 @@ struct disk
 {
     MYOS_DISK_TYPE type;
     int sector_size;
+
+    //each disk is binded with a fs upon resolving 
+    struct filesystem* filesystem;
 };
 
 void disk_search_and_init();
