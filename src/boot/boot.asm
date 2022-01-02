@@ -7,13 +7,33 @@ BITS 16 ;we are using 16 bit architecture, all assembly command are assemnled in
 CODE_SEG equ gdt_code - gdt_start 
 DATA_SEG equ gdt_data - gdt_start
 
-_start: 
-    jmp short start
-    nop
+jmp short start
+nop
 
-; the BIOS paramenter block will go here
+;============= the BIOS paramenter block ==============
+OEMIdentifier           db 'MYOS    '   ;the space is to pad it to 8 byte (8 chars)
+BytesPerSector          dw 0x200        ;512 bytes per sector, note that we are simply telling the system how the disk works, we cannot can the hardware spec of the disk so 512 is set
+SectorsPerCluster       db 0x80         ;128 sectors per cluster
+ReservedSectors         dw 200          ;200 reserved sectors, the space reserved for the kernel code
+FATCopies               db 0x02         ;have 2 fat copies
+RootDirEntries          dw 0x40         ;64 
+NumSectors              dw 0x00         ;not used
+MediaType               db 0xF8         
+SectorsPerFat           dw 0x100        
+SectorsPerTrack         dw 0x20
+NumberOfHeads           dw 0x40
+HiddenSectors           dd 0x00
+SectorsBig              dd 0x773594
 
-times 33 db 0 ;create 33 bytes here filled with 0
+;|----- Extended BPB (Dos 4.0)-------|
+DriveNumber             db 0x80
+WinNTBit                db 0x00
+Signature               db 0x29
+VolumeID                dd 0xD105
+VolumeIDString          db 'MYOS BOOT  ' ;must be 11 bytes
+SystemIDString          db 'FAT16   '
+;======================================================
+
 
 start:
     jmp 0:code ; ensures that our code segment start at 0x7c0
