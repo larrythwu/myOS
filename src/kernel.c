@@ -28,6 +28,7 @@ void kernel_main()
     kheap_init();
 
     //-------initialize the file system----------//
+    //insert FAT16 into our list of fs
     fs_init();
 
     //-------search and init the disks-------//

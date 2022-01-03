@@ -3,6 +3,7 @@
         "heap.h": "c",
         "cmath": "c",
         "memory.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "kheap.h": "c"
     }
 }

@@ -15,8 +15,12 @@ struct disk
     MYOS_DISK_TYPE type;
     int sector_size;
 
+    int id;
     //each disk is binded with a fs upon resolving 
     struct filesystem* filesystem;
+
+    //private data of our fs
+    void* fs_private;
 };
 
 void disk_search_and_init();

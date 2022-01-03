@@ -33,7 +33,7 @@ int disk_read_sector(int lba, int total, void* buf)
     {
         //wait for the data return buffer to be ready
         char c = insb(0x1F7);
-        while(! (c & 0x88))
+        while(! (c & 0x08))
         {
             c = insb(0x1F7);
         }
@@ -57,6 +57,7 @@ void disk_search_and_init()
 {
     //we only have one disk right now, so no need for a searching mechanism yet   
     memset(&disk, 0, sizeof(disk));
+    disk.id = 0;
     disk.type = MYOS_DISK_TYPE_REAL;
     disk.sector_size = MYOS_SECTOR_SIZE;
     disk.filesystem = fs_resolve(&disk);
