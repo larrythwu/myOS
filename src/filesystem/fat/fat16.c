@@ -7,6 +7,9 @@
 #include  "memory/heap/kheap.h"
 #include  "memory/memory.h"
 #include "fat_structures.h"
+#include "kernel.h"
+#include "status.h"
+#include "config.h"
 
 int fat16_resolve(struct disk* disk);
 void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode);
@@ -199,7 +202,225 @@ out:
     return res;
 }
 
-void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode)
+//parse through a string (in) and produce a copy (out) by adding a null terminator at the position of the space if there is a space
+//file name is eight char by default anything shorter than that are padded with space, so we really need this
+void fat16_to_proper_string(char** out, const char* in)
+{
+    //FIXME: there is a bug when the name of the file is full 8 byte, there would not be a null terminator or a space
+    //simply add a counter to count to eight
+    int counter = 8;
+    //stop when there is a space or null terminator
+    while(*in != 0x00 && *in != 0x20 && counter>0)
+    {
+        **out = *in;
+        *out += 1;
+        in +=1;
+        counter--;
+    }
+
+    if (*in == 0x20)
+    {
+        **out = 0x00;
+    }
+}
+
+//take in the raw filename in out and change it to the space eliminated + extension appended version
+//ie 'hello   '   ->> "hello.pdf"
+void fat16_get_full_relative_filename(struct fat_directory_item* item, char* out, int max_len)
+{
+    memset(out, 0x00, max_len);
+    char *out_tmp = out;
+    fat16_to_proper_string(&out_tmp, (const char*) item->filename);
+    if (item->ext[0] != 0x00 && item->ext[0] != 0x20)
+    {
+        *out_tmp++ = '.';
+        //join the filename and the extension ie hello (ext pdf) -> hello.pdf
+        fat16_to_proper_string(&out_tmp, (const char*) item->ext);
+    }
+}
+
+//clone a fat_dir_item into a new memory space
+struct fat_directory_item* fat16_clone_directory_item(struct fat_directory_item* item, int size)
+{
+    struct fat_directory_item* item_copy = 0;
+    if (size < sizeof(struct fat_directory_item))
+    {
+        return 0;
+    }
+
+    item_copy = kzalloc(size);
+    if (!item_copy)
+    {
+        return 0;
+    }
+
+    memcpy(item_copy, item, size);
+    return item_copy;
+}
+
+static uint32_t fat16_get_first_cluster(struct fat_directory_item* item)
+{
+    return (item->high_16_bits_first_cluster) | item->low_16_bits_first_cluster;
+}
+
+static uint32_t fat16_get_first_fat_sector(struct fat_private* private)
+{
+    return private->header.primary_header.reserved_sectors;
+}
+
+static int fat16_cluster_to_sector(struct fat_private* private, int cluster)
+{
+    return private->root_directory.ending_sector_pos + ((cluster - 2) * private->header.primary_header.sectors_per_cluster);
+}
+
+
+static int fat16_read_internal(struct disk* disk, int starting_cluster, int offset, int total, void* out)
 {
     return 0;
+}
+
+
+//given that the fat_directory_item* item is a directory, we return a fat_directory struct that hold all the fat_dir_items inside the directory represented in 'item'
+struct fat_directory* fat16_load_fat_directory(struct disk* disk, struct fat_directory_item* item)
+{
+    int res = 0;
+    struct fat_directory* directory = 0;
+    struct fat_private* fat_private = disk->fs_private;
+
+    //double check if the dir item really is a dir
+    if (!(item->attribute & FAT_FILE_SUBDIRECTORY))
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    directory = kzalloc(sizeof(struct fat_directory));
+    if (!directory)
+    {
+        res = -ENOMEM;
+        goto out;
+    }
+
+    //get the first sector and then convert it to sector number 
+    int cluster = fat16_get_first_cluster(item);
+    int cluster_sector = fat16_cluster_to_sector(fat_private, cluster);
+    //get the total number of dir_items in this directory
+    int total_items = fat16_get_total_items_for_directory(disk, cluster_sector);
+    directory->total = total_items;
+    //get the size of the directory struct we need to store all the dir items
+    int directory_size = directory->total * sizeof(struct fat_directory_item);
+    directory->item = kzalloc(directory_size);
+    if (!directory->item)
+    {
+        res = -ENOMEM;
+        goto out;
+    }
+
+    res = fat16_read_internal(disk, cluster, 0x00, directory_size, directory->item);
+    if (res != ALL_OK)
+    {
+        goto out;
+    }
+
+
+out:
+    if (res != ALL_OK)
+    {
+        kfree(directory->item);
+    }
+    return directory;
+}
+
+struct fat_item* fat16_new_fat_item_for_directory_item(struct disk* disk, struct fat_directory_item* item)
+{
+    struct fat_item* f_item = kzalloc(sizeof(struct fat_item));
+    if (!f_item)
+    {
+        return 0;
+    }
+    //if the item is a sub dir, then we load its fat_direcotry struct
+    if (item->attribute & FAT_FILE_SUBDIRECTORY)
+    {
+        f_item->directory = fat16_load_fat_directory(disk, item);
+        f_item->type = FAT_ITEM_TYPE_DIRECTORY;
+        return f_item;
+    }
+
+    //if its a file, we clone its item struct as to be safe, in case the original item get changed in the future
+    f_item->type = FAT_ITEM_TYPE_FILE;
+    f_item->item = fat16_clone_directory_item(item, sizeof(struct fat_directory_item));
+    return f_item;
+}
+
+//search for the fat_item by name and return it if it exist in the directory given
+struct fat_item* fat16_find_item_in_directory(struct disk* disk, struct fat_directory* directory, const char* name)
+{
+    struct fat_item* f_item = 0;
+    char tmp_filename[MYOS_MAX_PATH];
+    for (int i = 0; i < directory->total; i++)
+    {
+        //get the name of the item in the directory one by one and compare it with the name provided
+        //not this filename is extension appended, ie hello.pdf instead of hello as in the plain directory item name
+        fat16_get_full_relative_filename(&directory->item[i], tmp_filename, sizeof(tmp_filename));
+        //note that we are using the case insensitive string compare, because FAT is case insensitive
+        if(istrncmp(tmp_filename, name, sizeof(tmp_filename)) == 0)
+        {
+            // if found, let's create a new fat_item
+            f_item = fat16_new_fat_item_for_directory_item(disk, &directory->item[i]);
+        }
+    }
+
+    return f_item;
+}
+
+
+//return the fat_item of the target file to open, given the path in path_part* and disk
+struct fat_item* fat16_get_directory_entry(struct disk* disk, struct path_part* path)
+{
+    struct fat_private* fat_private = disk->fs_private;
+    struct fat_item* current_item = 0;
+    //get the fat_item of the first part after root ie.   0:/first_part/second_part/....
+    struct fat_item* root_item = fat16_find_item_in_directory(disk, &fat_private->root_directory, path->part);
+    if(!root_item)
+    {
+        //direcotry or file does not exist
+        goto out;
+    }
+
+
+
+
+out:
+    return current_item;
+
+}
+ 
+ //we implement only read for now
+void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode)
+{
+    if(mode != FILE_MODE_READ)
+    {
+        return ERROR(-ERDONLY);
+    }
+
+    struct fat_file_descriptor* descriptor = 0;
+    descriptor = kzalloc(sizeof(struct fat_file_descriptor));
+    if(!descriptor)
+    {
+        kfree(descriptor);
+        return ERROR(-ENOMEM);
+    }
+
+    descriptor->item = fat16_get_directory_entry(disk, path);
+    if(!descriptor->item)
+    {
+        kfree(descriptor);
+        return ERROR(-EIO);
+    }
+
+    //when the file is frist opened the position is zero of course
+    descriptor->pos=0;
+
+
+    return descriptor;
 }

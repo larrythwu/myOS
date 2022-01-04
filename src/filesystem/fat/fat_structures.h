@@ -68,10 +68,12 @@ struct fat_h
     } shared;
 };
 
+//struct that represent a file or a subdirectory under a parent directory
+//so depending on the attribute (file or dir), the cluster may points to piece of data or another array of fat_directory_items (a dir)
 struct fat_directory_item
 {
     uint8_t filename[8];
-    uint8_t ext[3];
+    uint8_t ext[3]; //that is .txt .log
     uint8_t attribute;
     uint8_t reserved;
     uint8_t creation_time_tenths_of_a_sec;
@@ -85,6 +87,9 @@ struct fat_directory_item
     uint32_t filesize;
 } __attribute__((packed));
 
+
+//struct that represent a directory, note this is just an abstruction for the kernel
+//this structure doesnot exit on the acutal disk, on the disk everything file or dir is of struct 
 struct fat_directory
 {
     struct fat_directory_item* item;
@@ -106,7 +111,7 @@ struct fat_item
 };
 
 //this represents an opened file
-struct fat_item_descriptor
+struct fat_file_descriptor
 {
     struct fat_item* item;
     uint32_t pos;
