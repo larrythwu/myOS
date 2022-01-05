@@ -48,9 +48,15 @@ void kernel_main()
     //-------enable te interrupts-------//
     enable_interrupts();
 
-    char buf[20];
-    strcpy(buf, "hello");
-
-
+    //-------testing fopen--------//
+    int fd = fopen("0:/hello2.txt", "r");
+    if(fd)
+    {
+        print("Opened hello.txt successfully!");
+    }
+    else
+    {
+        print("file cannot be opened");
+    }
     while(1){}
 }
