@@ -1,5 +1,6 @@
 #ifndef FILE_H
 #define FILE_H
+#include <stdint.h>
 
 #include "path_parser.h"
 
@@ -26,6 +27,8 @@ struct disk;
 typedef void*(*FS_OPEN_FUNCTION)(struct disk* disk, struct path_part* path, FILE_MODE mode);
 //check to see if a filesystem is compatible 
 typedef int (*FS_RESOLVE_FUNCTION)(struct disk* disk);
+//function pointers for read
+typedef int (*FS_READ_FUNCTION)(struct disk* disk, void* private, uint32_t size, uint32_t nmemb, char* out);
 
 struct filesystem
 {
@@ -34,7 +37,7 @@ struct filesystem
     //the filesystem should return 0 from resolve if the provided disk is using its fs
     FS_RESOLVE_FUNCTION resolve;
     FS_OPEN_FUNCTION open;
-
+    FS_READ_FUNCTION read;
     char name[20];
 };
 
@@ -57,6 +60,6 @@ void fs_init();
 int fopen(const char* filename, const char* mode_str);
 void fs_insert_filesystem(struct filesystem* filesystem);
 struct filesystem* fs_resolve(struct disk* disk);
-
+int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd);
 
 #endif

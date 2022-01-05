@@ -208,3 +208,28 @@ out:
 
     return res;
 } 
+
+
+//ptr the return address of the read data
+//size: what is the block size that we want to read; nmemb: how many of these blocks we want to read
+//the file descriptor for the opened file
+int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
+{
+    int res = 0;
+    if (size == 0 || nmemb == 0 || fd < 1)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    struct file_descriptor* desc = file_get_descriptor(fd);
+    if (!desc)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    res = desc->filesystem->read(desc->disk, desc->private, size, nmemb, (char*) ptr);
+out:
+    return res;
+} 
