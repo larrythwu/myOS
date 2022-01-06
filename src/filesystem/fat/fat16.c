@@ -13,12 +13,14 @@
 
 int fat16_resolve(struct disk* disk);
 void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode);
+int fat16_read(struct disk* disk, void* descriptor, uint32_t size, uint32_t nmemb, char* out_ptr);
 
 //instantiate filesyste struct and set the resolve function pointer
 struct filesystem fat16_fs =
 {
     .resolve = fat16_resolve,
-    .open = fat16_open
+    .open = fat16_open,
+    .read = fat16_read
 };
 
 struct filesystem* fat16_init()
@@ -629,3 +631,31 @@ void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode)
 
     return descriptor;
 }
+
+//after a file is opened, ie if we have the file descriptor, then we can read it 
+//by specifying the descriptor, the block size we want to read and how many of these blocks to read
+//the data will be read into the addr pointed to by out 
+int fat16_read(struct disk* disk, void* descriptor, uint32_t size, uint32_t nmemb, char* out_ptr)
+{
+    int res = 0;
+    struct fat_file_descriptor* fat_desc = descriptor;
+    struct fat_directory_item* item = fat_desc->item->item;
+    int offset = fat_desc->pos;
+    //the first cluster where the data of the file are stored 
+    uint32_t first_cluster_number =  fat16_get_first_cluster(item);
+    for (uint32_t i = 0; i < nmemb; i++)
+    {
+        res = fat16_read_internal(disk, first_cluster_number, offset, size, out_ptr);
+        if (res<0)
+        {
+            goto out;
+        }
+
+        out_ptr += size;
+        offset += size;
+    }
+
+    res = nmemb;
+out:
+    return res;
+} 

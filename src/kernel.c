@@ -49,14 +49,18 @@ void kernel_main()
     enable_interrupts();
 
     //-------testing fopen--------//
-    int fd = fopen("0:/hello2.txt", "r");
+    int fd = fopen("0:/hello.txt", "r");
     if(fd)
     {
-        print("Opened hello.txt successfully!");
+        print("Opened hello.txt successfully!\n");
+        char buf[7];
+        fread(buf, 6, 1, fd);
+        buf[7] = 0;
+        print(buf);
     }
     else
     {
-        print("file cannot be opened");
+        print("file cannot be opened\n");
     }
     while(1){}
 }
