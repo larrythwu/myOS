@@ -11,16 +11,15 @@
 #include "status.h"
 #include "config.h"
 
-int fat16_resolve(struct disk* disk);
-void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode);
-int fat16_read(struct disk* disk, void* descriptor, uint32_t size, uint32_t nmemb, char* out_ptr);
 
 //instantiate filesyste struct and set the resolve function pointer
 struct filesystem fat16_fs =
 {
     .resolve = fat16_resolve,
     .open = fat16_open,
-    .read = fat16_read
+    .read = fat16_read,
+    .seek = fat16_seek,
+    .stat = fat16_stat
 };
 
 struct filesystem* fat16_init()
@@ -659,3 +658,89 @@ int fat16_read(struct disk* disk, void* descriptor, uint32_t size, uint32_t nmem
 out:
     return res;
 } 
+
+//change the position of the file descriptor
+int fat16_seek(void *private, uint32_t offset, FILE_SEEK_MODE seek_mode)
+{
+    int res = 0;
+    struct fat_file_descriptor *desc = private;
+    struct fat_item *desc_item = desc->item;
+
+    //make sure that the descriptor is indeed poiting to file and not a dir
+    //cannot be a dir anyway really, since we do the checks in open
+    if (desc_item->type != FAT_ITEM_TYPE_FILE)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    struct fat_directory_item *ritem = desc_item->item;
+
+    //check if we are seeking to a position outside of the file
+    if (offset >= ritem->filesize)
+    {
+        res = -EIO;
+        goto out;
+    }
+
+    switch (seek_mode)
+    {
+    case SEEK_SET:
+        desc->pos = offset;
+        break;
+    //not implemented yet
+    case SEEK_END:
+        res = -EUNIMP;
+        break;
+
+    case SEEK_CUR:
+        desc->pos += offset;
+        break;
+
+    default:
+        res = -EINVARG;
+        break;
+    }
+out:
+    return res;
+} 
+
+//get the file size and the attr flags of the file from the descriptor
+int fat16_stat(struct disk* disk, void* private, struct file_stat* stat)
+{
+    int res = 0;
+    struct fat_file_descriptor* descriptor = (struct fat_file_descriptor*) private;
+    struct fat_item* desc_item = descriptor->item;
+    if (desc_item->type != FAT_ITEM_TYPE_FILE)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    struct fat_directory_item* ritem = desc_item->item;
+    stat->filesize = ritem->filesize;
+    stat->flags = 0x00;
+
+    //check if the read only bit in the attribute is set
+    if (ritem->attribute & FAT_FILE_READ_ONLY)
+    {
+        stat->flags |= FILE_STAT_READ_ONLY;
+    }
+    //we didn't bother with other flags like write, because we didn't implement them anyway
+
+out:
+    return res;
+}
+
+static void fat16_free_file_descriptor(struct fat_file_descriptor* desc)
+{
+    fat16_fat_item_free(desc->item);
+    kfree(desc);
+}
+
+
+int fat16_close(void* private)
+{
+    fat16_free_file_descriptor((struct fat_file_descriptor*) private);
+    return 0;
+}

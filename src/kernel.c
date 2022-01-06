@@ -54,6 +54,7 @@ void kernel_main()
     {
         print("Opened hello.txt successfully!\n");
         char buf[7];
+        fseek(fd, 2, SEEK_SET);
         fread(buf, 6, 1, fd);
         buf[7] = 0;
         print(buf);
