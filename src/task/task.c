@@ -4,6 +4,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/memory.h"
 #include "memory/paging/paging.h"
+#include "process.h"
 
 // the current task that is running
 struct task* current_task = 0;
@@ -12,7 +13,7 @@ struct task* current_task = 0;
 struct task* task_tail = 0;
 struct task* task_head = 0;
 
-int task_init(struct task* task);
+int task_init(struct task* task, struct process* process);
 
 //return the current task
 struct task* task_current()
@@ -21,7 +22,7 @@ struct task* task_current()
 }
 
 //create and inintialize a new task and add it to the end of the linked list 
-struct task* task_new()
+struct task* task_new(struct process* process)
 {
     int res = 0;
     struct task* task = kzalloc(sizeof(struct task));
@@ -31,7 +32,7 @@ struct task* task_new()
         goto out;
     }
 
-    res = task_init(task);
+    res = task_init(task, process);
     if (res != ALL_OK)
     {
         goto out;
@@ -107,7 +108,7 @@ int task_free(struct task* task)
 }
 
 //initialize the task 
-int task_init(struct task* task)
+int task_init(struct task* task, struct process* process)
 {
     memset(task, 0, sizeof(struct task));
     //Create a new page directory, a 4GB read-only address space 

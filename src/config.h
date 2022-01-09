@@ -41,5 +41,6 @@
 //the offset in the gdt_real table defined in kernel.c
 #define USER_DATA_SEGMENT 0x23
 #define USER_CODE_SEGMENT 0x1b
-
+#define MYOS_MAX_PROGRAM_ALLOCATIONS 1024
+#define MYOS_MAX_PROCESSES 12
 #endif
