@@ -31,4 +31,15 @@
 
 #define MYOS_TOTAL_GDT_SEGMENTS 6
 
+#define MYOS_PROGRAM_VIRTUAL_ADDRESS 0x400000
+//16KB user program stack size
+#define MYOS_USER_PROGRAM_STACK_SIZE 1024 * 16
+#define MYOS_PROGRAM_VIRTUAL_STACK_ADDRESS_START 0x3FF000
+//note that the stack grows downward so the end address is always less the the start
+#define MYOS_PROGRAM_VIRTUAL_STACK_ADDRESS_END MYOS_PROGRAM_VIRTUAL_ADDRESS_START - MYOS_USER_PROGRAM_STACK_SIZE
+
+//the offset in the gdt_real table defined in kernel.c
+#define USER_DATA_SEGMENT 0x23
+#define USER_CODE_SEGMENT 0x1b
+
 #endif
