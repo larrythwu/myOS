@@ -124,3 +124,37 @@ int task_init(struct task* task, struct process* process)
 
     return 0;
 } 
+
+//change the current task that is running and reload the page table
+int task_switch(struct task* task)
+{
+    current_task = task;
+    paging_switch(task->page_directory->directory_entry);
+    return 0;
+}
+
+//switch from the kernel page direcotry into the task page directory
+//note the kernel activity is not tasks
+int task_page()
+{
+    user_registers();
+    task_switch(current_task);
+    return 0;
+}
+
+//runnig the first task: run the task link list head
+void task_run_first_ever_task()
+{
+    //make sure a current_task is set
+    if (!current_task)
+    {
+        panic("task_run_first_ever_task(): No current task exists!\n");
+    }
+
+    //switch the page directory to task's
+    task_switch(task_head);
+    //return to user space by reloading its registers
+    task_return(&task_head->registers);
+}
+
+
