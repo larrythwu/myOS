@@ -12,6 +12,8 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 	sudo mount -t vfat ./bin/os.bin /mnt/d
 	# copy a file over 
 	sudo cp ./hello.txt /mnt/d
+	#copy the user program over
+	sudo cp ./programs/blank/blank.bin /mnt/d
 	#unmount
 	sudo umount /mnt/d
 	

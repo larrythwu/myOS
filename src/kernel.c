@@ -15,6 +15,8 @@
 #include "config.h"
 #include "memory/memory.h"
 #include "task/tss.h"
+#include "task/task.h"
+#include "task/process.h"
 
 void panic(const char* msg)
 {
@@ -62,7 +64,7 @@ void kernel_main()
     tss.ss0 = KERNEL_DATA_SELECTOR;
     //0x28 is the offset in the gdt_real structure 
     tss_load(0x28);
-    
+
     //-------initailize our kernel space heap-------//
     kheap_init();
 
@@ -84,23 +86,28 @@ void kernel_main()
     
     enable_paging();
 
-    //-------enable te interrupts-------//
-    enable_interrupts();
+    
+    //-------load our user program------//
+    struct process* process = 0;
+    print("loading process\n");
 
-    //-------testing fopen--------//
-    int fd = fopen("0:/hello.txt", "r");
-    if(fd)
+    int res = process_load("0:/blank.bin", &process);
+    print("loaded process\n");
+
+    if (res != 0)
     {
-        print("Opened hello.txt successfully!\n");
-        char buf[7];
-        fseek(fd, 2, SEEK_SET);
-        fread(buf, 6, 1, fd);
-        buf[7] = 0;
-        print(buf);
+        panic("Failed to load the user program");
     }
-    else
-    {
-        print("file cannot be opened\n");
-    }
+
+    print("registers:\n");
+    printn(process->task->registers.ip);
+    printn(process->task->registers.esp);
+
+    task_run_first_ever_task();
+
+    //-------enable te interrupts-------//
+    //enable_interrupts();
+
+    
     while(1){}
 }

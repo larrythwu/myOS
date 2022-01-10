@@ -1,14 +1,18 @@
 ENTRY(_start)
-OUTPUT_FORMAT(binary)
+OUTPUT_FORMAT(elf32-i386)
 SECTIONS
 {
-    . = 0x400000; 
-
+    . = 0x400000;
     .text : ALIGN(4096)
     {
         *(.text)
     }
 
+    .asm : ALIGN(4096)
+    {
+        *(.asm)
+    }
+    
     .rodata : ALIGN(4096)
     {
         *(.rodata)
@@ -25,8 +29,4 @@ SECTIONS
         *(.bss)
     }
 
-    .asm : ALIGN(4096)
-    {
-            *(.asm)
-    }
 }

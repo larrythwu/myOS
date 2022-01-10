@@ -8,4 +8,4 @@ tss_load:
     mov ax, [ebp+8] ; TSS Segment
     ltr ax
     pop ebp
-    ret 
+    ret

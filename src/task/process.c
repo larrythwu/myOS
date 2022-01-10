@@ -4,6 +4,8 @@
 #include "task/task.h"
 #include "memory/memory.h"
 #include "std/string.h"
+#include "std/stdio.h"
+
 #include "filesystem/file.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
@@ -40,11 +42,13 @@ struct process* process_get(int process_id)
 //load the binary file into process->ptr
 static int process_load_binary(const char* filename, struct process* process)
 {
+    print("in process_load_binary\n");
     int res = 0;
 
     int fd = fopen(filename, "r");
     if (!fd)
     {
+        print("Error!!!\n");
         res = -EIO;
         goto out;
     }
@@ -53,18 +57,21 @@ static int process_load_binary(const char* filename, struct process* process)
     res = fstat(fd, &stat);
     if (res != ALL_OK)
     {
+        print("Error!!!\n");
         goto out;
     }
 
     void* program_data_ptr = kzalloc(stat.filesize);
     if (!program_data_ptr)
     {
+        print("Error!!!\n");
         res = -ENOMEM;
         goto out;
     }
 
     if (fread(program_data_ptr, stat.filesize, 1, fd) != 1)
     {
+        print("Error!!!\n");
         res = -EIO;
         goto out;
     }
@@ -73,14 +80,19 @@ static int process_load_binary(const char* filename, struct process* process)
     process->size = stat.filesize;
 
 out:
-    fclose(fd);
+    //fclose(fd);
+    print("exit process_load_binary\n");
+
     return res;
 }
 
 static int process_load_data(const char* filename, struct process* process)
 {
+    print("in process_load_data\n");
     int res = 0;
     res = process_load_binary(filename, process);
+    print("exit process_load_data\n");
+
     return res;
 }
 
@@ -114,6 +126,7 @@ int process_get_free_slot()
 //loading an existing process into our processes array at the index process_slot
 int process_load_for_slot(const char* filename, struct process** process, int process_slot)
 {
+    print("in process_load_for_slot\n");
     int res = 0;
     struct task* task = 0;
     struct process* _process;
@@ -162,6 +175,7 @@ int process_load_for_slot(const char* filename, struct process** process, int pr
     if (ERROR_I(task) == 0)
     {
         res = ERROR_I(task);
+        goto out;
     }
 
     _process->task = task;
@@ -178,6 +192,7 @@ int process_load_for_slot(const char* filename, struct process** process, int pr
     processes[process_slot] = _process;
 
 out:
+    print("exit process_load_for_slot\n");
     if (ISERR(res))
     {
         if (_process && _process->task)
@@ -193,6 +208,7 @@ out:
 //find the first free slot in the processes array and call process_load_for_slot to load the process into that slot
 int process_load(const char* filename, struct process** process)
 {
+    print("in process_load\n");
     int res = 0;
     int process_slot = process_get_free_slot();
     if (process_slot < 0)
@@ -203,5 +219,6 @@ int process_load(const char* filename, struct process** process)
 
     res = process_load_for_slot(filename, process, process_slot);
 out:
+    print("exited process_load\n");
     return res;
 }
