@@ -41,7 +41,13 @@ struct gdt_structured gdt_structured[MYOS_TOTAL_GDT_SEGMENTS] = {
     {.base = (uint32_t)&tss, .limit=sizeof(tss), .type = 0xE9}      // TSS Segment
 };
 
- 
+//switch to the kernel page directory
+void kernel_page()
+{
+    kernel_registers();
+    paging_switch(kernel_chunk);
+}
+
 //our main function
 void kernel_main()
 {
@@ -82,7 +88,7 @@ void kernel_main()
     //-------enable paging-------//
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
     
-    paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
+    paging_switch(kernel_chunk);
     
     enable_paging();
 

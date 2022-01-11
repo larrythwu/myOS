@@ -2,6 +2,7 @@
 
 global _start ;export the sympol
 global problem
+global kernel_registers
 
 extern kernel_main
 
@@ -49,6 +50,15 @@ _start: ;set up the 32 bit registers
     call kernel_main
 
     jmp $
+
+kernel_registers:
+    mov ax, 10
+    mov ds, ax
+    mov es, ax
+    mov gs, ax
+    mov fs, ax
+    ret
+
 
 ; a division by zero function, to test out our interrupts in protected mode
 problem:

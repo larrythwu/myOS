@@ -4,6 +4,7 @@
 #include "memory/memory.h"
 #include "io/io.h"
 #include "std/stdio.h"
+#include "task/task.h"
 
 struct idt_desc idt_descriptors[MYOS_TOTAL_INTERRUPTS];
 struct idtr_desc idt_descriptor;
@@ -74,3 +75,23 @@ void idt_init()
     idt_load(&idt_descriptor);
     print("Loaded IDT\n");
 }
+
+void* isr80h_handle_command(int command, struct interrupt_frame* frame)
+{
+    return 0;
+
+}
+
+void* isr80h_handler(int command, struct interrupt_frame* frame)
+{
+    void* res = 0;
+    //switch to kernel paging 
+    kernel_page();
+    //save the current register info into the frame object
+    task_current_save_state(frame);
+    //execute the command 
+    res = isr80h_handle_command(command, frame);
+    //switch back to the task page
+    task_page();
+    return res;
+} 
