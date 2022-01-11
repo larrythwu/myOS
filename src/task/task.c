@@ -5,7 +5,7 @@
 #include "memory/memory.h"
 #include "memory/paging/paging.h"
 #include "process.h"
-
+#include "std/stdio.h"
 // the current task that is running
 struct task* current_task = 0;
 
@@ -156,6 +156,7 @@ void task_run_first_ever_task()
     //switch the page directory to task's
     task_switch(task_head);
     //return to user space by reloading its registers
+    print("running task_return\n");
     task_return(&task_head->registers);
 }
 

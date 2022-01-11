@@ -4,6 +4,7 @@
         "cmath": "c",
         "memory.h": "c",
         "stdio.h": "c",
-        "kheap.h": "c"
+        "kheap.h": "c",
+        "status.h": "c"
     }
 }

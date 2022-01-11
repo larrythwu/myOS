@@ -32,5 +32,4 @@ struct tss
 } __attribute__((packed));
 
 void tss_load(int tss_segment);
-
 #endif

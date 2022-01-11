@@ -78,9 +78,10 @@ static int process_load_binary(const char* filename, struct process* process)
 
     process->ptr = program_data_ptr;
     process->size = stat.filesize;
+    printn(stat.filesize);
 
 out:
-    //fclose(fd);
+    fclose(fd);
     print("exit process_load_binary\n");
 
     return res;

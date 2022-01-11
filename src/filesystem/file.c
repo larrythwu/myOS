@@ -284,7 +284,7 @@ int fclose(int fd)
     }
 
     res = desc->filesystem->close(desc->private);
-    if(res == ALL_OK)
+    if (res == ALL_OK)
     {
         file_free_descriptor(desc);
     }

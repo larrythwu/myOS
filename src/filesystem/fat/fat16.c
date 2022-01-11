@@ -19,7 +19,8 @@ struct filesystem fat16_fs =
     .open = fat16_open,
     .read = fat16_read,
     .seek = fat16_seek,
-    .stat = fat16_stat
+    .stat = fat16_stat,
+    .close = fat16_close
 };
 
 struct filesystem* fat16_init()

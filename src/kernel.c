@@ -102,6 +102,8 @@ void kernel_main()
     print("registers:\n");
     printn(process->task->registers.ip);
     printn(process->task->registers.esp);
+    uint32_t* temp = (uint32_t*)0x400000;
+    printn(*temp);
 
     task_run_first_ever_task();
 
