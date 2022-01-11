@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+struct interrupt_frame;
+
+//function pointers declaration
+typedef void*(*ISR80H_COMMAND)(struct interrupt_frame* frame);
+
 //the interrupt descriptor
 struct idt_desc
 {
@@ -44,4 +49,6 @@ struct interrupt_frame
 void idt_init();
 void enable_interrupts();
 void disable_interrupts();
+void isr80h_set_command(int command_id, ISR80H_COMMAND command);
+
 #endif

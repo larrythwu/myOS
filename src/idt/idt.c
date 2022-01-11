@@ -9,12 +9,16 @@
 struct idt_desc idt_descriptors[MYOS_TOTAL_INTERRUPTS];
 struct idtr_desc idt_descriptor;
 
+//this is an array of function pointers that point to the syscall handlers
+static ISR80H_COMMAND isr80h_commands[MYOS_MAX_ISR80H_COMMANDS];
+
 //the function defined in idt.asm which load the idt using lidt asm function
 //which uses the address of the idtr_drcriptor in the memory
 extern void idt_load(struct idtr_desc* ptr);
 
 extern void int21h();
 extern void no_interrupt();
+extern void isr80h_wrapper();
 
 //our keyboared interrupt handler
 void int21h_handler()
@@ -69,7 +73,7 @@ void idt_init()
     
     idt_set(0, idt_zero);
     idt_set(0x21, int21h);
-
+    idt_set(0x80, isr80h_wrapper);
 
     //load the idt through the asm code
     idt_load(&idt_descriptor);
@@ -78,8 +82,41 @@ void idt_init()
 
 void* isr80h_handle_command(int command, struct interrupt_frame* frame)
 {
-    return 0;
+    void* result = 0;
 
+    //check if the command is within range
+    if(command <= 0 || command >= MYOS_MAX_ISR80H_COMMANDS)
+    {
+        return 0;
+    }
+
+    //get the function pointer
+    ISR80H_COMMAND command_func = isr80h_commands[command];
+    //the syscall does not exist
+    if (!command_func)
+    {
+        return 0;
+    }
+    //calling the function pointer
+    result = command_func(frame);
+    return result;
+}
+
+
+//we set the function pointer array osr80h_commands to the right functiopn pointer
+void isr80h_set_command(int command_id, ISR80H_COMMAND command)
+{
+    if (command_id <= 0 || command_id >= MYOS_MAX_ISR80H_COMMANDS)
+    {
+        panic("The command is out of bounds\n");
+    }
+
+    if (isr80h_commands[command_id])
+    {
+        panic("Your attempting to overwrite an existing command\n");
+    }
+
+    isr80h_commands[command_id] = command;
 }
 
 void* isr80h_handler(int command, struct interrupt_frame* frame)
