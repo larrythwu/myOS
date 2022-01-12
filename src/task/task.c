@@ -235,3 +235,30 @@ out_free:
 out:
     return res;
 }
+
+//load the page table of the task given
+int task_page_task(struct task* task)
+{
+    user_registers();
+    paging_switch(task->page_directory);
+    return 0;
+}
+
+//pull the items from the task stack
+void* task_get_stack_item(struct task* task, int index)
+{
+    void* result = 0;
+    //this is the stack the moment the interrupt is called
+    uint32_t* sp_ptr = (uint32_t*) task->registers.esp;
+
+    // Switch to the given tasks page, but the stack is still kernel stack
+    task_page_task(task);
+    //we are pushing this value onto the KERNEL stack, as we only loaded the task page table
+    //nothing else
+    result = (void*) sp_ptr[index];
+
+    // Switch back to the kernel page
+    kernel_page();
+
+    return result;
+} 

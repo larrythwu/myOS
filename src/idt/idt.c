@@ -85,7 +85,7 @@ void* isr80h_handle_command(int command, struct interrupt_frame* frame)
     void* result = 0;
 
     //check if the command is within range
-    if(command <= 0 || command >= MYOS_MAX_ISR80H_COMMANDS)
+    if(command < 0 || command >= MYOS_MAX_ISR80H_COMMANDS)
     {
         return 0;
     }
