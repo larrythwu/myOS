@@ -5,5 +5,9 @@ global _start
 
 _start:
 ; just a loop
-label:
-    jmp label
+
+    ; lets run the syscall 0
+    mov eax, 0
+    int 0x80
+    
+    jmp $

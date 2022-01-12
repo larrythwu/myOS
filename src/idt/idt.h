@@ -49,6 +49,6 @@ struct interrupt_frame
 void idt_init();
 void enable_interrupts();
 void disable_interrupts();
-void isr80h_set_command(int command_id, ISR80H_COMMAND command);
+void isr80h_register_command(int command_id, ISR80H_COMMAND command);
 
 #endif

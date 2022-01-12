@@ -17,6 +17,7 @@
 #include "task/tss.h"
 #include "task/task.h"
 #include "task/process.h"
+#include "isr80h/isr80h.h"
 
 void panic(const char* msg)
 {
@@ -92,6 +93,8 @@ void kernel_main()
     
     enable_paging();
 
+    //---------init the syscall handlers--------//
+    isr80h_register_commands();
     
     //-------load our user program------//
     struct process* process = 0;

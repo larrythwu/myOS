@@ -7,6 +7,8 @@
 #include "process.h"
 #include "std/stdio.h"
 #include "idt/idt.h"
+#include "memory/paging/paging.h"
+#include "std/string.h"
 
 // the current task that is running
 struct task* current_task = 0;
@@ -188,4 +190,48 @@ void task_current_save_state(struct interrupt_frame *frame)
 
     struct task *task = task_current();
     task_save_state(task, frame);
+}
+
+//copy a string stored in task's virtual memory into a physical address in the kernel
+int copy_string_from_task(struct task* task, void* virtual, void* phys, int max)
+{
+    if (max >= PAGING_PAGE_SIZE)
+    {
+        return -EINVARG;
+    }
+
+    int res = 0;
+    char* tmp = kzalloc(max);
+    if (!tmp)
+    {
+        res = -ENOMEM;
+        goto out;
+    }
+
+    uint32_t* task_directory = task->page_directory->directory_entry;
+    //this returns the physical addess of the temp with the flags
+    uint32_t old_entry = paging_get(task_directory, tmp);
+    //notice that currently we are in the kernel page table, we set the mapping in the task page table 
+    //to point to the same temp object that we created in kernel
+    //this allows the task to see our temp variable
+    paging_map(task->page_directory, tmp, tmp, PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
+    paging_switch(task->page_directory);
+    //in task space we can see virtual now, and we copy the string stored in virutal address to the temp
+    //so now the kernel can see the string stored in the task virutal memory
+    strncpy(tmp, virtual, max);
+    kernel_page();
+
+    res = paging_set(task_directory, tmp, old_entry);
+    if (res < 0)
+    {
+        res = -EIO;
+        goto out_free;
+    }
+
+    strncpy(phys, tmp, max);
+
+out_free:
+    kfree(tmp);
+out:
+    return res;
 }

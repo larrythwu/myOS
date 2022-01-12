@@ -104,9 +104,9 @@ void* isr80h_handle_command(int command, struct interrupt_frame* frame)
 
 
 //we set the function pointer array osr80h_commands to the right functiopn pointer
-void isr80h_set_command(int command_id, ISR80H_COMMAND command)
+void isr80h_register_command(int command_id, ISR80H_COMMAND command)
 {
-    if (command_id <= 0 || command_id >= MYOS_MAX_ISR80H_COMMANDS)
+    if (command_id < 0 || command_id >= MYOS_MAX_ISR80H_COMMANDS)
     {
         panic("The command is out of bounds\n");
     }
@@ -130,5 +130,6 @@ void* isr80h_handler(int command, struct interrupt_frame* frame)
     res = isr80h_handle_command(command, frame);
     //switch back to the task page
     task_page();
+    //we return back to the int80h wrapper which will send us back to the user land
     return res;
 } 
