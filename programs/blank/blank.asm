@@ -6,9 +6,12 @@ global _start
 _start:
 ; just a loop
 
-    push 0x20
-    push 0x30
-    mov eax, 0 ;command 0 syscall
+    
+    push message ; note this push in the message address
+    mov eax, 1 ; Command print
     int 0x80
-    add esp, 8 ;pop the stack
+    add esp, 4 ;pop the stack
     jmp $
+
+section .data
+message: db 'Trapping into the fucking kernel!', 0 
