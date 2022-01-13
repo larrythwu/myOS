@@ -18,6 +18,7 @@
 #include "task/task.h"
 #include "task/process.h"
 #include "isr80h/isr80h.h"
+#include "keyboard/keyboard.h"
 
 void panic(const char* msg)
 {
@@ -95,6 +96,9 @@ void kernel_main()
 
     //---------init the syscall handlers--------//
     isr80h_register_commands();
+    
+    //-----------init keyboard-----------//
+    keyboard_init();
     
     //-------load our user program------//
     struct process* process = 0;

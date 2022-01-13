@@ -27,6 +27,14 @@ struct process
 
     // The size of the data pointed to by "ptr"
     uint32_t size;
+
+    //the keyboard buffer
+    struct keyboard_buffer
+    {
+        char buffer[MYOS_KEYBOARD_BUFFER_SIZE];
+        int tail;
+        int head;
+    } keyboard;
 };
 
 #define PROCESS_FILETYPE_ELF 0
@@ -34,5 +42,7 @@ struct process
 
 int process_load(const char* filename, struct process** process);
 int process_load_for_slot(const char* filename, struct process** process, int process_slot);
+struct process* process_current();
+struct process* process_get(int process_id);
 
 #endif
