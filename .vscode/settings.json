@@ -5,6 +5,7 @@
         "memory.h": "c",
         "stdio.h": "c",
         "kheap.h": "c",
-        "status.h": "c"
+        "status.h": "c",
+        "classic.h": "c"
     }
 }
