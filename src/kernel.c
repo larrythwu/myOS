@@ -50,6 +50,11 @@ void kernel_page()
     paging_switch(kernel_chunk);
 }
 
+void pic_timer_callback(struct interrupt_frame* frame)
+{
+    print("Timer activated\n");
+}
+
 //our main function
 void kernel_main()
 {
@@ -100,6 +105,9 @@ void kernel_main()
     //-----------init keyboard-----------//
     keyboard_init();
 
+    //-----------testing our new interrupt handler functions----------//
+    idt_register_interrupt_callback(32, pic_timer_callback);
+
     //-------load our user program------//
     struct process* process = 0;
     print("loading process\n");
@@ -121,7 +129,7 @@ void kernel_main()
     task_run_first_ever_task();
 
     //-------enable te interrupts-------//
-    enable_interrupts();
+    //enable_interrupts();
 
     
     while(1){}

@@ -5,6 +5,7 @@
 #include "io/io.h"
 #include "std/stdio.h"
 #include "task/task.h"
+#include "status.h"
 
 struct idt_desc idt_descriptors[MYOS_TOTAL_INTERRUPTS];
 struct idtr_desc idt_descriptor;
@@ -22,6 +23,8 @@ extern void int21h();
 extern void no_interrupt();
 extern void isr80h_wrapper();
 
+//this array hold 512 interrupt handler function pointers, used by the general interrupt handler function
+static INTERRUPT_CALLBACK_FUNCTION interrupt_callbacks[MYOS_TOTAL_INTERRUPTS];
 
 //our keyboared interrupt handler
 // void int21h_handler()
@@ -136,9 +139,28 @@ void* isr80h_handler(int command, struct interrupt_frame* frame)
     return res;
 } 
 
+//set one entry of the interrupt_callbacks func pointer array
+int idt_register_interrupt_callback(int interrupt, INTERRUPT_CALLBACK_FUNCTION interrupt_callback)
+{
+    if (interrupt < 0 || interrupt >= MYOS_TOTAL_INTERRUPTS)
+    {
+        return -EINVARG;
+    }
+
+    interrupt_callbacks[interrupt] = interrupt_callback;
+    return 0;
+}
+
 //the function to direct all interrupt to the right handler base on their int number
 void interrupt_handler(int interrupt, struct interrupt_frame* frame)
 {
+    kernel_page();
+    if (interrupt_callbacks[interrupt] != 0)
+    {
+        task_current_save_state(frame);
+        interrupt_callbacks[interrupt](frame);
+    }
 
+    task_page();
     outb(0x20, 0x20);
 }
