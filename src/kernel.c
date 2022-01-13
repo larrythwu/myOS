@@ -99,7 +99,7 @@ void kernel_main()
     
     //-----------init keyboard-----------//
     keyboard_init();
-    
+
     //-------load our user program------//
     struct process* process = 0;
     print("loading process\n");
@@ -121,7 +121,7 @@ void kernel_main()
     task_run_first_ever_task();
 
     //-------enable te interrupts-------//
-    //enable_interrupts();
+    enable_interrupts();
 
     
     while(1){}

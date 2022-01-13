@@ -11,6 +11,8 @@ struct idtr_desc idt_descriptor;
 
 //this is an array of function pointers that point to the syscall handlers
 static ISR80H_COMMAND isr80h_commands[MYOS_MAX_ISR80H_COMMANDS];
+//contain the pointer to the interrupt handler in asm
+extern void* interrupt_pointer_table[MYOS_TOTAL_INTERRUPTS];
 
 //the function defined in idt.asm which load the idt using lidt asm function
 //which uses the address of the idtr_drcriptor in the memory
@@ -20,14 +22,15 @@ extern void int21h();
 extern void no_interrupt();
 extern void isr80h_wrapper();
 
+
 //our keyboared interrupt handler
-void int21h_handler()
-{
-    print("[INT] Pressed Key\n");
-    //End of Interrupt signal that we need to send to the PIC at the end of the Interrrupt Service Routine
-    //so that PIC canb reset the service register, EOI is sent by wrting ox20 to port 0x20 or 0x20 to 0xA0
-    outb(0x20, 0x20);
-}
+// void int21h_handler()
+// {
+//     print("[INT] Pressed Key\n");
+//     //End of Interrupt signal that we need to send to the PIC at the end of the Interrrupt Service Routine
+//     //so that PIC canb reset the service register, EOI is sent by wrting ox20 to port 0x20 or 0x20 to 0xA0
+//     outb(0x20, 0x20);
+// }
 
 //this is just a placeholder for all the IRQ interrupts that we don't have an routine created yet
 void no_interrupt_handler()
@@ -66,13 +69,12 @@ void idt_init()
     idt_descriptor.limit = sizeof(idt_descriptors)-1;
     idt_descriptor.base = (uint32_t)idt_descriptors;
     
-    //herer we set all the IRQ and software interrrupts to the no_interrupt_handler as default value
+    //herer we set all the IRQ and software interrrupts to the macro defined general handler
     for(int i = 0; i < MYOS_TOTAL_INTERRUPTS; i++){
-        idt_set(i, no_interrupt);
+        idt_set(i, interrupt_pointer_table[i]);
     }
     
     idt_set(0, idt_zero);
-    idt_set(0x21, int21h);
     idt_set(0x80, isr80h_wrapper);
 
     //load the idt through the asm code
@@ -133,3 +135,10 @@ void* isr80h_handler(int command, struct interrupt_frame* frame)
     //we return back to the int80h wrapper which will send us back to the user land
     return res;
 } 
+
+//the function to direct all interrupt to the right handler base on their int number
+void interrupt_handler(int interrupt, struct interrupt_frame* frame)
+{
+
+    outb(0x20, 0x20);
+}
