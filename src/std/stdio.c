@@ -35,8 +35,7 @@ void terminal_backspace()
     }
 
     terminal_col -=1;
-    terminal_writechar(' ', 15);
-    terminal_col -=1;
+    terminal_putchar(terminal_col, terminal_row, ' ', 15);
 }
 
 //write a char to the screen and move the position
