@@ -66,7 +66,11 @@ void keyboard_push(char c)
     {
         return;
     }
-
+    //if the character is null 
+    if(c == 0)
+    {
+        return;
+    }
     //get the tail index from the keyboard buffer 
     int real_index = keyboard_get_tail_index(process);
     process->keyboard.buffer[real_index] = c;

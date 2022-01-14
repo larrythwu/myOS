@@ -50,18 +50,12 @@ void kernel_page()
     paging_switch(kernel_chunk);
 }
 
-void pic_timer_callback(struct interrupt_frame* frame)
-{
-    print("Timer activated\n");
-}
-
 //our main function
 void kernel_main()
 {
     terminal_initialize();
     print("Welcome Larry!\n");
     print("myOS\n");
-
 
     //---------loading the GDT-----------//
     //zero of the gdt_real structure
@@ -106,13 +100,13 @@ void kernel_main()
     keyboard_init();
 
     //-----------testing our new interrupt handler functions----------//
-    idt_register_interrupt_callback(32, pic_timer_callback);
+    //idt_register_interrupt_callback(32, pic_timer_callback);
 
     //-------load our user program------//
     struct process* process = 0;
     print("loading process\n");
 
-    int res = process_load("0:/blank.bin", &process);
+    int res = process_load_switch("0:/blank.bin", &process);
     print("loaded process\n");
 
     if (res != 0)
