@@ -3,22 +3,14 @@ section .asm
 
 global _start
 
-_start:
-; just a loop
 
-    
-    push message ; note this push in the message address
-    mov eax, 1 ; Command print
-    int 0x80
-    add esp, 4 ;pop the stack
-
+_loop:
     call getkey
-
-    push keypress
-    mov eax, 1 ; Command print
+    push eax
+    mov eax, 3 ; Command putchar
     int 0x80
-    add esp, 4 ;pop the stack
-    jmp $
+    add esp, 4
+    jmp _loop
 
 getkey:
     mov eax, 2 ; Command getkey

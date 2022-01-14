@@ -15,27 +15,53 @@ uint16_t terminal_make_char(char c, char color)
 }
 
 //put a char at the position specified 
-void terminal_putchar(int x, int y, char c, char color)
+void terminal_putchar(int x, int y, char c, char colour)
 {
-    video_mem[(y*VGA_WIDTH) + x] = terminal_make_char(c, color);
+    video_mem[(y * VGA_WIDTH) + x] = terminal_make_char(c, colour);
+}
+
+//handle a backspace
+void terminal_backspace()
+{
+    if (terminal_row == 0 && terminal_col == 0)
+    {
+        return;
+    }
+
+    if (terminal_col == 0)
+    {
+        terminal_row -= 1;
+        terminal_col = VGA_WIDTH;
+    }
+
+    terminal_col -=1;
+    terminal_writechar(' ', 15);
+    terminal_col -=1;
 }
 
 //write a char to the screen and move the position
-void terminal_writechar(char c, char color)
+void terminal_writechar(char c, char colour)
 {
-    if(c=='\n')
+    if (c == '\n')
     {
-        terminal_row++;
+        terminal_row += 1;
         terminal_col = 0;
         return;
     }
-    terminal_putchar(terminal_col, terminal_row, c, color);
-    terminal_col ++;
-    if(terminal_col >= VGA_WIDTH){
-        terminal_col = 0;
-        terminal_row ++;
+
+    if (c == 0x08)
+    {
+        terminal_backspace();
+        return;
     }
 
+    terminal_putchar(terminal_col, terminal_row, c, colour);
+    terminal_col += 1;
+    if (terminal_col >= VGA_WIDTH)
+    {
+        terminal_col = 0;
+        terminal_row += 1;
+    }
 }
 
 //clear the display to all black
@@ -63,6 +89,18 @@ size_t len(const char* str)
 }
 
 char numberArray[100];
+
+
+
+//print a string to screen
+void print(const char* str){
+    size_t length = len(str);
+    for(int i = 0; i< length; i++){
+        terminal_writechar(str[i], 15);
+    }
+}
+
+
 
 //convert an integer into printable char array
 char * toArray(int number)
@@ -92,18 +130,13 @@ char * toArray(int number)
     return numberArray;
 }
 
-
-//print a string to screen
-void print(const char* str){
-    size_t length = len(str);
-    for(int i = 0; i< length; i++){
-        terminal_writechar(str[i], 15);
-    }
-}
-
-void printn(int number)
+void printn(uint16_t* number,  int j)
 {
     //print("Printing integer\n");
-    print(toArray(number));
+    char* str = toArray(*number);
+    size_t length = len(str);
+    for(int i = 0; i< length; i++){
+        terminal_putchar(0+i, 10+j, str[i], 15);
+    }
     print("\n");
 }

@@ -82,7 +82,7 @@ void idt_init()
 
     //load the idt through the asm code
     idt_load(&idt_descriptor);
-    print("Loaded IDT\n");
+    //print("Loaded IDT\n");
 }
 
 void* isr80h_handle_command(int command, struct interrupt_frame* frame)

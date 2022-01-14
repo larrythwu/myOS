@@ -6,7 +6,8 @@
 
 void print(const char* str);
 void terminal_initialize();
-void printn(int number);
+void printn(uint16_t* number,  int j);
 size_t len(const char* str);
+void terminal_writechar(char c, char color);
 
 #endif

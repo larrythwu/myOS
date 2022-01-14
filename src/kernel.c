@@ -22,7 +22,7 @@
 
 void panic(const char* msg)
 {
-    print(msg);
+    //print(msg);
     while(1) {}
 }
 
@@ -54,8 +54,8 @@ void kernel_page()
 void kernel_main()
 {
     terminal_initialize();
-    print("Welcome Larry!\n");
-    print("myOS\n");
+    //print("Welcome Larry!\n");
+    //print("myOS\n");
 
     //---------loading the GDT-----------//
     //zero of the gdt_real structure
@@ -104,22 +104,16 @@ void kernel_main()
 
     //-------load our user program------//
     struct process* process = 0;
-    print("loading process\n");
+    //print("loading process\n");
 
     int res = process_load_switch("0:/blank.bin", &process);
-    print("loaded process\n");
+    //print("loaded process\n");
 
     if (res != 0)
     {
         panic("Failed to load the user program");
     }
-
-    print("registers:\n");
-    printn(process->task->registers.ip);
-    printn(process->task->registers.esp);
-    uint32_t* temp = (uint32_t*)0x400000;
-    printn(*temp);
-
+    
     task_run_first_ever_task();
 
     //-------enable te interrupts-------//

@@ -160,7 +160,7 @@ void task_run_first_ever_task()
     //switch the page directory to task's
     task_switch(task_head);
     //return to user space by reloading its registers
-    print("running task_return\n");
+    //print("running task_return\n");
     task_return(&task_head->registers);
 }
 
