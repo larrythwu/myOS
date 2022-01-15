@@ -59,6 +59,7 @@ typedef int32_t elf32_sword;
 typedef uint32_t elf32_addr;
 typedef int32_t elf32_off;
 
+//program header
 struct elf32_phdr
 {
     elf32_word p_type;
@@ -71,6 +72,7 @@ struct elf32_phdr
     elf32_word p_align;
 } __attribute__((packed));
 
+//section header
 struct elf32_shdr
 {
     elf32_word sh_name;
@@ -114,6 +116,7 @@ struct elf32_dyn
     
 } __attribute__((packed));
 
+//index into the string table
 struct elf32_sym
 {
     elf32_word st_name;

@@ -10,7 +10,7 @@
 struct elf_file
 {
     char filename[MYOS_MAX_PATH];
-
+    //size of the elfile when loaded into the memory
     int in_memory_size;
 
     /**

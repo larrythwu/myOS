@@ -13,7 +13,7 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 	# copy a file over 
 	sudo cp ./hello.txt /mnt/d
 	#copy the user program over
-	sudo cp ./programs/blank/blank.bin /mnt/d
+	sudo cp ./programs/blank/blank.elf /mnt/d
 	#unmount
 	sudo umount /mnt/d
 	
