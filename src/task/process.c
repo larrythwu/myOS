@@ -10,6 +10,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
 #include "kernel.h"
+#include "loader/formats/elfloader.h"
 
 // The current process that is running
 struct process* current_process = 0;
@@ -78,6 +79,8 @@ static int process_load_binary(const char* filename, struct process* process)
 
     process->ptr = program_data_ptr;
     process->size = stat.filesize;
+    process->filetype = PROCESS_FILETYPE_BINARY;
+
 out:
     fclose(fd);
     //print("exit process_load_binary\n");
@@ -85,16 +88,39 @@ out:
     return res;
 }
 
+//calling elf_load to load the elfile 
+static int process_load_elf(const char* filename, struct process* process)
+{
+    int res = 0;
+    struct elf_file* elf_file = 0;
+    res = elf_load(filename, &elf_file);
+    if (ISERR(res))
+    {
+        goto out;
+    }
+
+    process->filetype = PROCESS_FILETYPE_ELF;
+    process->elf_file = elf_file;
+out:
+    return res;
+}
+
 static int process_load_data(const char* filename, struct process* process)
 {
-    //print("in process_load_data\n");
-    int res = 0;
-    res = process_load_binary(filename, process);
-    //print("exit process_load_data\n");
+    int res = 0;    
+    //res = process_load_binary(filename, process);
+    //load the elf into the process
+    res = process_load_elf(filename, process);
+    //if we cannot load the elf file headers, then this file is a binary 
+    if (res == -EINFORMAT)
+    {
+        res = process_load_binary(filename, process);
+    }
 
     return res;
 }
 
+//mapping the bin file to process page
 int process_map_binary(struct process* process)
 {
     int res = 0;
@@ -102,10 +128,37 @@ int process_map_binary(struct process* process)
     return res;
 }
 
+//mapping the elf file to the process page
+static int process_map_elf(struct process* process)
+{
+    int res = 0;
+
+    struct elf_file* elf_file = process->elf_file;
+    //map the page table using the virtual addr and the physical addr inside the elfile object which we loaded 
+    //note we round up the start addr and round down the ending addr, so to make sure no matter what the data will always fit
+    res = paging_map_to(process->task->page_directory, paging_align_to_lower_page(elf_virtual_base(elf_file)), elf_phys_base(elf_file), paging_align_address(elf_phys_end(elf_file)), PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITEABLE);
+    return res;
+}
+
 int process_map_memory(struct process* process)
 {
     int res = 0;
-    res = process_map_binary(process);
+
+    //different way of mapping base on the file type
+    switch(process->filetype)
+    {
+        case PROCESS_FILETYPE_ELF:
+            res = process_map_elf(process);
+        break;
+
+        case PROCESS_FILETYPE_BINARY:
+            res = process_map_binary(process);
+        break;
+
+        default://invalid file type
+            panic("process_map_memory: Invalid filetype\n");
+    }
+
     if (res < 0)
     {
         goto out;

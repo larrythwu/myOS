@@ -205,7 +205,7 @@ int elf_load(const char* filename, struct elf_file** file_out)
     int fd = 0;
     //open the file for read 
     int res = fopen(filename, "r");
-    if (res <= 0)
+    if (res < 0)
     {
         res = -EIO;
         goto out;
@@ -213,7 +213,7 @@ int elf_load(const char* filename, struct elf_file** file_out)
 
     fd = res;
 
-    //use fstate to get the file size 
+    //use fstat to get the file size 
     struct file_stat stat;
     res = fstat(fd, &stat);
     if (res < 0)

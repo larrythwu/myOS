@@ -4,6 +4,10 @@
 #include "task.h"
 #include "config.h"
 
+#define PROCESS_FILETYPE_ELF 0
+#define PROCESS_FILETYPE_BINARY 1
+typedef unsigned char PROCESS_FILETYPE;
+
 struct process
 {
     // The process id
@@ -20,8 +24,15 @@ struct process
 
     // The physical pointer to the process memory.
     //used to point to any data we need
-    void* ptr;
-
+    //ptr is for binary file 
+    //elf_file is for loading the elf file folder 
+    //depending on the file type we are loading, one of them will be occuppied 
+    union
+    {
+        // The physical pointer to the process memory.
+        void* ptr;
+        struct elf_file* elf_file;
+    };
     // The physical pointer to the stack memory
     void* stack;
 
@@ -35,6 +46,13 @@ struct process
         int tail;
         int head;
     } keyboard;
+
+    //----for loading in the elf file-----//
+    PROCESS_FILETYPE filetype;
+
+
+
+
 };
 
 #define PROCESS_FILETYPE_ELF 0

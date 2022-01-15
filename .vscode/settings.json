@@ -6,6 +6,7 @@
         "stdio.h": "c",
         "kheap.h": "c",
         "status.h": "c",
-        "classic.h": "c"
+        "classic.h": "c",
+        "elfloader.h": "c"
     }
 }
