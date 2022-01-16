@@ -1,4 +1,13 @@
+#include "myos.h"
+
 int main(int argc, char** argv)
 {
-    return 0;
+    while(1) 
+    {
+        int c = getkey();
+        if (c != 0)
+        {
+            print((char*)(&c));
+        }
+    }
 } 
