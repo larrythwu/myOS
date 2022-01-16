@@ -9,6 +9,7 @@
 #include "idt/idt.h"
 #include "memory/paging/paging.h"
 #include "std/string.h"
+ #include "loader/formats/elfloader.h"
 
 // the current task that is running
 struct task* current_task = 0;
@@ -124,6 +125,14 @@ int task_init(struct task* task, struct process* process)
     }
 
     task->registers.ip = MYOS_PROGRAM_VIRTUAL_ADDRESS;
+    //if we are loading a elf file then we need to set the program starting register to the
+    //entry point, for binary files we can just start at 0x400000
+    if (process->filetype == PROCESS_FILETYPE_ELF)
+    {
+        task->registers.ip = elf_header(process->elf_file)->e_entry;
+    }
+
+
     task->registers.ss = USER_DATA_SEGMENT;
     task->registers.esp = MYOS_PROGRAM_VIRTUAL_STACK_ADDRESS_START;
     task->registers.cs = USER_CODE_SEGMENT;

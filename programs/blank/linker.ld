@@ -7,7 +7,6 @@ SECTIONS
     {
         *(.text)
     }
-
     .asm : ALIGN(4096)
     {
         *(.asm)
@@ -17,17 +16,9 @@ SECTIONS
     {
         *(.rodata)
     }
-
     .data : ALIGN(4096)
     {
         *(.data)
     }
 
-    .bss : ALIGN(4096)
-    {
-        *(COMMON)
-        *(.bss)
-    }
-
-
-} 
+}

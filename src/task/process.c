@@ -136,7 +136,26 @@ static int process_map_elf(struct process* process)
     struct elf_file* elf_file = process->elf_file;
     //map the page table using the virtual addr and the physical addr inside the elfile object which we loaded 
     //note we round up the start addr and round down the ending addr, so to make sure no matter what the data will always fit
-    res = paging_map_to(process->task->page_directory, paging_align_to_lower_page(elf_virtual_base(elf_file)), elf_phys_base(elf_file), paging_align_address(elf_phys_end(elf_file)), PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITEABLE);
+    struct elf_header* header = elf_header(elf_file);
+    struct elf32_phdr* phdrs = elf_pheader(header);
+    //we loop through all the program headers
+    for (int i = 0; i < header->e_phnum; i++)
+    {
+        struct elf32_phdr* phdr = &phdrs[i];
+        void* phdr_phys_address = elf_phdr_phys_address(elf_file, phdr);
+        int flags = PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL;
+        //we want all the sectors to be readable, but writtable is not for all
+        //only if the flag is set
+        if (phdr->p_flags & PF_W)
+        {
+            flags |= PAGING_IS_WRITEABLE;
+        }
+        res = paging_map_to(process->task->page_directory, paging_align_to_lower_page((void*)phdr->p_vaddr), paging_align_to_lower_page(phdr_phys_address), paging_align_address(phdr_phys_address+phdr->p_filesz), flags);
+        if (ISERR(res))
+        {
+            break;
+        }
+    }
     return res;
 }
 
