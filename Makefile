@@ -119,10 +119,12 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/io.c -o ./build/isr80h/io.o
 
 user_programs:
+	cd ./programs/stdlib && $(MAKE) all
 	cd ./programs/blank && $(MAKE) all
 
 user_programs_clean:
 	cd ./programs/blank && $(MAKE) clean
+	cd ./programs/stdlib && $(MAKE) clean
 
 clean: user_programs_clean
 	rm -rf ./bin/boot.bin

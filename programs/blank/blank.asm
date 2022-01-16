@@ -1,10 +1,10 @@
 [BITS 32]
 section .asm
 
-global _start
+global loop
 
 
-_start:
+loop:
     call getkey
     push eax
     mov eax, 3 ; Command putchar
