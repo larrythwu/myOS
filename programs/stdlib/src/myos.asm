@@ -5,8 +5,8 @@ global print:function
 global getkey:function
 global sys_malloc:function
 global sys_free:function
-
 global sys_putchar:function
+global sys_process_load_start:function
 
 ; void print(const char* filename)
 print:
@@ -60,3 +60,14 @@ sys_putchar:
     add esp, 4
     pop ebp
     ret
+
+; void sys_process_load_start(const char* filename)
+sys_process_load_start:
+    push ebp
+    mov ebp, esp
+    mov eax, 6 ; Command 6 process load start ( stars a process )
+    push dword[ebp+8] ; Variable "filename"
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret 

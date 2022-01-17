@@ -10,5 +10,5 @@ void sys_free(void* ptr);
 void sys_putchar(char c);
 int sys_getkeyblock();
 void sys_terminal_readline(char* out, int max, bool output_while_typing);
-
+void sys_process_load_start(const char* filename);
 #endif 

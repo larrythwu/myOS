@@ -11,8 +11,7 @@ int main(int argc, char** argv)
         print("> ");
         char buf[1024];
         sys_terminal_readline(buf, sizeof(buf), true);
-        print("\n");
-        print(buf);
+        sys_process_load_start(buf);
         print("\n");
 
     }
