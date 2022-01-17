@@ -7,6 +7,8 @@
         "kheap.h": "c",
         "status.h": "c",
         "classic.h": "c",
-        "elfloader.h": "c"
+        "elfloader.h": "c",
+        "myos.h": "c",
+        "stdlib.h": "c"
     }
 }
