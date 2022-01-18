@@ -5,6 +5,7 @@
 #include "status.h"
 #include "config.h"
 #include "kernel.h"
+#include "std/stdio.h"
 
 //syscall handler for loading a process
 void* isr80h_command6_process_load_start(struct interrupt_frame* frame)
@@ -81,5 +82,14 @@ void* isr80h_command8_get_program_arguments(struct interrupt_frame* frame)
     struct process_arguments* arguments = task_virtual_address_to_physical(task_current(), task_get_stack_item(task_current(), 0));
     //get the process arguments into the task argument variables
     process_get_arguments(process, &arguments->argc, &arguments->argv);
+    return 0;
+} 
+
+void* isr80h_command9_exit(struct interrupt_frame* frame)
+{
+    print("\nExiting current program...\n");
+    struct process* process = task_current()->process;
+    process_terminate(process);
+    task_next();
     return 0;
 } 

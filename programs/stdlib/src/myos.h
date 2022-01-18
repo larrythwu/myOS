@@ -28,5 +28,5 @@ struct command_argument* sys_parse_command(const char* command, int max);
 void sys_process_get_arguments(struct process_arguments* arguments);
 int system_run(const char* command);
 int system(struct command_argument* arguments);
-
+void exit();
 #endif 
