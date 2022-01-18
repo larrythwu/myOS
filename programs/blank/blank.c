@@ -47,6 +47,7 @@ int main(int argc, char** argv)
     // sys_process_get_arguments(&arguments);
 
     // printf("%i %s\n", arguments.argc, arguments.argv[0]);
+    print("In blank.elf\n");
     print(argv[0]);
 
     while(1) 

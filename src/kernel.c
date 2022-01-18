@@ -106,7 +106,7 @@ void kernel_main()
     struct process* process = 0;
     //print("loading process\n");
 
-    int res = process_load_switch("0:/blank.elf", &process);
+    int res = process_load_switch("0:/shell.elf", &process);
     //print("loaded process\n");
 
     if (res != 0)

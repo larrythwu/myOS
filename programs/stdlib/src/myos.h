@@ -26,5 +26,7 @@ void sys_terminal_readline(char* out, int max, bool output_while_typing);
 void sys_process_load_start(const char* filename);
 struct command_argument* sys_parse_command(const char* command, int max);
 void sys_process_get_arguments(struct process_arguments* arguments);
+int system_run(const char* command);
+int system(struct command_argument* arguments);
 
 #endif 
