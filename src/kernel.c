@@ -106,7 +106,7 @@ void kernel_main()
     struct process* process = 0;
     //print("loading process\n");
 
-    int res = process_load_switch("0:/shell.elf", &process);
+    int res = process_load_switch("0:/blank.elf", &process);
     //print("loaded process\n");
 
     if (res != 0)
@@ -114,6 +114,12 @@ void kernel_main()
         panic("Failed to load the user program");
     }
     
+    struct command_argument argument;
+    strcpy(argument.argument, "Testing!");
+    argument.next = 0x00; 
+
+    process_inject_arguments(process, &argument);
+
     task_run_first_ever_task();
 
     //-------enable te interrupts-------//

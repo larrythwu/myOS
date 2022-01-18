@@ -271,3 +271,9 @@ void* task_get_stack_item(struct task* task, int index)
 
     return result;
 } 
+
+//return the physical addr from virutal addr
+void* task_virtual_address_to_physical(struct task* task, void* virtual_address)
+{
+    return paging_get_physical_address(task->page_directory->directory_entry, virtual_address);
+} 

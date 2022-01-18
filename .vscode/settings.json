@@ -9,6 +9,7 @@
         "classic.h": "c",
         "elfloader.h": "c",
         "myos.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "string.h": "c"
     }
 }
