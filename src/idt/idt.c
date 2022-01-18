@@ -66,6 +66,14 @@ void idt_set(int interrupt_no, void* address)
 
 }
 
+void idt_clock()
+{
+    outb(0x20, 0x20);
+    // Switch to the next task
+    task_next();
+}
+
+
 //set up the intterupt descriptor table 
 void idt_init()
 {
@@ -81,13 +89,14 @@ void idt_init()
     
     //idt_set(0, idt_zero);
     idt_set(0x80, isr80h_wrapper);
+    //timer
+    //idt_set(0x20, idt_clock);
 
     for (int i = 0; i < 0x20; i++)
     {
         idt_register_interrupt_callback(i, idt_handle_exception);
     }
-
-
+    idt_register_interrupt_callback(0x20, idt_clock);
     //load the idt through the asm code
     idt_load(&idt_descriptor);
     //print("Loaded IDT\n");

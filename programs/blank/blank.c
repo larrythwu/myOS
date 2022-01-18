@@ -51,7 +51,11 @@ int main(int argc, char** argv)
     // char* ptr = (char*) 0x00;
     // *ptr = 0x50;
     
-    print("In blank.elf\n");
-    print(argv[0]);
+    // print("In blank.elf\n");
+    // print(argv[0]);
+    while(1)
+    {
+        print(argv[0]);
+    }
     return 0;
 } 

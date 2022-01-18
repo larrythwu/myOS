@@ -115,10 +115,16 @@ void kernel_main()
     }
     
     struct command_argument argument;
-    strcpy(argument.argument, "Testing!");
+    strcpy(argument.argument, "1");
     argument.next = 0x00; 
-
+    res = process_load_switch("0:/blank.elf", &process);
     process_inject_arguments(process, &argument);
+
+    res = process_load_switch("0:/blank.elf", &process);
+    strcpy(argument.argument, "2");
+    argument.next = 0x00; 
+    process_inject_arguments(process, &argument);
+
 
     task_run_first_ever_task();
 
