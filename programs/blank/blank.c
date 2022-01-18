@@ -47,6 +47,17 @@ int main(int argc, char** argv)
     // sys_process_get_arguments(&arguments);
 
     // printf("%i %s\n", arguments.argc, arguments.argv[0]);
+
+    // char* ptr = (char*) 0x00;
+    // *ptr = 0x50;
+    print("Here");
+    int a = 0;
+    int b = 1 /a;
+    if(b)
+    {
+
+    }
+    print("after");
     print("In blank.elf\n");
     print(argv[0]);
 
