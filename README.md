@@ -19,14 +19,14 @@ Resids in the first sector of our bootable disk, the very first code loaded into
 
 **2. The Kernel (Protected Mode)**
 
-Here we implement the bread and the butter of our OS. 
+Here we implement the bread and butter of our OS. 
 - Initialize the GDT 
 - Implemented functions to handle IO to ports and heap memory allocation
 - Load our interrupt discriptor table, and implement system call handlers 
 - Initialize our FAT16 file system
 - Enbale page mapping 
 - Create construct to represent a process, and create functions to allow context switching in order to achieve multi-threading
-- Finally, it kick off our very first user progra m - the shell terminal
+- Finally, it kick off our very first user program - the shell terminal
 
 
 **3. User Programs (User Space)**
@@ -42,7 +42,7 @@ The simulation is done using QEMU
 ```
 qemu-system-x86_64 --hda ./bin/os.bin
 ```
-The debugging tool I used is GDB, to launch QEMU simulation inside GDB, run the folloowing in GDB
+The debugging tool I used is GDB, to launch QEMU simulation inside GDB, run the following in GDB
 ```
 target remote | qemu-system-x86_64 -S -gdb stdio -hda ./bin/os.bin
 ```
