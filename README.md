@@ -52,4 +52,4 @@ Under the root directory of the project, run ./build.sh, which will set up all t
 ## Acknowledgments
 Inspired by the series of lectures created by Daniel McCarthy 
 
-He post all of his lectures on this website https://dragonzap.com/, trust me, it's worth the money 
+He post all of his lectures on this website https://dragonzap.com/
