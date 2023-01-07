@@ -1,4 +1,4 @@
-<img src="https://cdn-60c35131c1ac185aa47dd21e.closte.com//wp-content/uploads/2019/05/terminal-app-icon.png" alt="drawing" style="width:150px;"/>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/GNOME_Terminal_icon_2019.svg/1200px-GNOME_Terminal_icon_2019.svg.png" alt="drawing" style="width:150px;"/>
 
 # myOS
 
